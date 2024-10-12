@@ -139,7 +139,112 @@ Splunk uses various configuration files located in `$SPLUNK_HOME/etc/`:
     - Understand the precedence between system (`/etc/system/`), app (`/etc/apps/`), and user (`/etc/users/`) configurations.
 - **Use Apps for Configuration**:
     - Package configurations within apps for modularity and portability, making them easier to manage and deploy.
+  
 - **Version Control**:
     - Keep configuration files under version control systems like Git to track changes and collaborate effectively.
 - **Backup Configurations**:
     - Regularly back up configuration files to prevent data loss and facilitate recovery.
+  ----
+
+  ## New and Improved: Hidden Gems in Splunk
+In this section, we'll cover some underutilized features that can significantly enhance your Splunk experience.
+
+### Accelerated Data Models
+- **What Are They?**
+    - Data models that are accelerated allow for faster searches on large datasets by precomputing results.
+
+- **Benefits**:
+    - Improves performance of Pivot reports and dashboards.
+    - Reduces search load on indexers.
+
+- **How to Use**:
+    - Define a data model in the Data Model Editor.
+    - Enable acceleration by checking the **Accelerate** option and setting the **Summary Range**.
+
+- **Best Practices**:
+    - **Resource Planning**: Ensure your infrastructure can handle the additional storage and processing.
+    - **Monitoring**: Use the **Monitoring Console** to keep an eye on data model accelerations.
+  ---
+
+  ### Using the Splunk Deployment Server
+- Purpose:
+    - Centralize the management of Splunk configurations and apps across multiple instances, simplifying administration.
+
+- **Key Concepts**:
+    - **Deployment Server**: The central Splunk instance that manages configurations.
+    - **Deployment Clients**: Splunk instances that receive configurations from the deployment server.
+    - **Server Classes**: Groups of deployment clients that share common configurations.
+    - **Apps**: Packages containing configurations to be deployed.
+- **Setup Steps:**
+1. **Enable Deployment Server**:
+    ```
+    splunk enable deploy-server
+    ```
+2. **Create Server Classes**:
+- Define server classes in `serverclass.conf` or via Splunk Web UI.
+3. **Prepare Apps**:
+- Place apps in `$SPLUNK_HOME/etc/deployment-apps/`.
+4. **Configure Deployment Clients**:
+- On each client, set up `deploymentclient.conf` to point to the deployment server.
+    ```
+    [target-broker:deploymentServer]
+targetUri = deploymentserver:8089
+    ```
+5. **Reload Deployment Server**:
+    ```
+    splunk reload deploy-server
+    ```
+- Best Practices:
+    - Organize Server Classes Logically: Group clients based on role, location, or function.
+    - Stagger Deployments: Schedule deployments during maintenance windows to minimize impact.
+---
+
+### Index-Time Field Extraction
+- **What Is It?**
+    - Extracting fields during indexing rather than at search time, storing them in the index for faster retrieval.
+
+- **Advantages**:
+    - Performance: Improves search speed as fields are pre-extracted.
+    - Consistency: Ensures fields are extracted uniformly across all data.
+
+- **Use Cases**:
+    - Fields that are frequently searched and critical for reporting or alerting.
+
+- **Implementation**:
+1. **Define Transforms**:
+    - In transforms.conf, define the field extraction using regular expressions.
+    ```conf
+    [extract_user]
+REGEX = user=(\w+)
+FORMAT = user::$1
+    ```
+2. **Configure Props**:
+    - In `props.conf`, apply the transform at index time.
+   ```conf
+  [sourcetype]
+TRANSFORMS-index = extract_user
+   ```
+- **Caution**:
+    - Irreversible: Index-time extractions cannot be modified after data is indexed.
+    - Resource Intensive: May increase indexing time and storage requirements.
+
+- **Best Practices**:
+    - Plan Carefully: Only extract fields that are necessary and justify the overhead.
+    - Test Thoroughly: Use a test environment to validate configurations before applying them to production.
+---
+
+## Additional Resources
+
+- **Splunk Documentation**:
+    - [Configuration File Reference](https://docs.splunk.com/Documentation/Splunk/latest/Admin/Aboutconfigurationfiles)
+    - [Data Onboarding Manual](https://docs.splunk.com/Documentation/Splunk/latest/Data/Aboutaddingdata)
+    - [Deployment Server Manual](https://docs.splunk.com/Documentation/Splunk/latest/Updating/Aboutdeploymentserver)
+
+- **Splunk Blogs**:
+    - [Best Practices for Data Onboarding](https://www.splunk.com/en_us/blog/tips-and-tricks.html?301=/en_us/category/tips-and-tricks)
+
+- **Community Forums**:
+    - [Splunk Answers](https://community.splunk.com/)
+- **Users Groups**:
+      - [Groups](https://usergroups.splunk.com/)
+      
