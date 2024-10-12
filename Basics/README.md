@@ -188,13 +188,13 @@ In this section, we'll cover some underutilized features that can significantly 
 - On each client, set up `deploymentclient.conf` to point to the deployment server.
     ```
     [target-broker:deploymentServer]
-targetUri = deploymentserver:8089
+    targetUri = deploymentserver:8089
     ```
 5. **Reload Deployment Server**:
     ```
     splunk reload deploy-server
     ```
-- Best Practices:
+- **Best Practices**:
     - Organize Server Classes Logically: Group clients based on role, location, or function.
     - Stagger Deployments: Schedule deployments during maintenance windows to minimize impact.
 ---
@@ -213,16 +213,16 @@ targetUri = deploymentserver:8089
 - **Implementation**:
 1. **Define Transforms**:
     - In transforms.conf, define the field extraction using regular expressions.
-    ```conf
+    ```
     [extract_user]
-REGEX = user=(\w+)
-FORMAT = user::$1
+    REGEX = user=(\w+)
+    FORMAT = user::$1
     ```
 2. **Configure Props**:
-    - In `props.conf`, apply the transform at index time.
-   ```conf
-  [sourcetype]
-TRANSFORMS-index = extract_user
+   - In `props.conf`, apply the transform at index time.
+   ```
+   [sourcetype]
+   TRANSFORMS-index = extract_user
    ```
 - **Caution**:
     - Irreversible: Index-time extractions cannot be modified after data is indexed.
